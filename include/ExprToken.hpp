@@ -9,7 +9,8 @@ enum class TokenType : short
     OPERATOR,
     LPAREN,
     RPAREN,
-    END
+    END,
+    UNKNOWN
 };
 
 struct ExprToken {

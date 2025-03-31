@@ -8,6 +8,7 @@ public:
     explicit Lexer(const std::string& content);
 
     std::vector<ExprToken> tokenize();
+    void printTokens();
 
 private:
     std::string content_;
@@ -21,5 +22,6 @@ private:
 
     ExprToken readNumber();
     ExprToken readIndentifierOrFunction();
-    
+
+   
 };
