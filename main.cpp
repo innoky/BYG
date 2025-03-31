@@ -4,8 +4,7 @@
 
 int main()
 {
-    Lexer lexer = Lexer("(3.121+2-1) * 2 / 42 \0");
-
+    Lexer lexer = Lexer("x = log(u^2 + v^2) / (v - sin(u))");
     lexer.tokenize();
     lexer.printTokens();
 }

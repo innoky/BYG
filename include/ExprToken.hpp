@@ -9,6 +9,8 @@ enum class TokenType : short
     OPERATOR,
     LPAREN,
     RPAREN,
+    PARAMETER,
+    AXIS,
     END,
     UNKNOWN
 };

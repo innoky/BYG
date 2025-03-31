@@ -7,7 +7,8 @@ class Lexer {
 public: 
     explicit Lexer(const std::string& content);
 
-    std::vector<ExprToken> tokenize();
+    void tokenize();
+    std::vector<ExprToken> tokens;
     void printTokens();
 
 private:
@@ -21,7 +22,5 @@ private:
     ExprToken nextToken();
 
     ExprToken readNumber();
-    ExprToken readIndentifierOrFunction();
-
-   
+    ExprToken readIdentifierOrFunction();
 };

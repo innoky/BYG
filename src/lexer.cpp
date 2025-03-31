@@ -1,5 +1,7 @@
-#include "lexer.hpp"
 #include <iostream>
+#include "lexer.hpp"
+#include "TUtils.hpp"
+
 
 Lexer::Lexer(const std::string& content)
 {
@@ -67,6 +69,10 @@ ExprToken Lexer::nextToken()
         get();
         return ExprToken{")", TokenType::RPAREN};
     }
+    else if (isalpha(current))
+    {
+        return readIdentifierOrFunction();
+    }
     else
     {
         get();
@@ -102,24 +108,53 @@ ExprToken Lexer::readNumber()
     return ExprToken{numberStr, TokenType::NUMBER};
 }
 
-std::vector<ExprToken> Lexer::tokenize()
+ExprToken Lexer::readIdentifierOrFunction()
 {
-    std::vector<ExprToken> tokens;
+    std::string exp;
+    while (pos_ < content_.size() && isalpha(content_[pos_]))
+    {
+        exp+=get();
+    }
+
+    if (exp == "u" || exp == "v")
+    {
+        return ExprToken{exp, TokenType::VARIABLE};
+    }
+    else if (exp == "x" || exp == "y" || exp == "z")
+    {
+        return ExprToken{exp, TokenType::AXIS};
+    }
+    else if (exp.size() == 1)
+    {
+        return ExprToken{exp, TokenType::PARAMETER};
+    }
+    else if (exp == "sin" || exp == "cos" || exp == "tan" || exp == "exp" || exp == "log")
+    {
+            return ExprToken{exp, TokenType::FUNCTION};
+    }
+    else
+    {
+        return ExprToken{exp, TokenType::UNKNOWN}; 
+    }
+}
+
+void Lexer::tokenize()
+{
+    tokens.clear();
+    pos_ = 0;
     while (pos_ < content_.size())
     {
         ExprToken token = nextToken();
-        std::cout << token.text << " | " << static_cast<int>(token.type) << std::endl;
         tokens.push_back(token);
     }
-    return tokens;
 }
 
 void Lexer::printTokens()
 {   
-    std::vector<ExprToken> outputTokens = tokenize();
-    for (int id = 0; id < outputTokens.size(); id++)
+    for (int id = 0; id < tokens.size(); id++)
     {
-        std::cout << outputTokens[id].text << " | ";
-        std::cout << static_cast<int>(outputTokens[id].type) << std::endl;
+        std::cout << tokens[id].text << " | ";
+        std::cout << tokens[id].type << std::endl;
     }
 }
+
