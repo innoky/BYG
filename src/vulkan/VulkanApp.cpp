@@ -108,5 +108,6 @@ void VulkanApp::initVulkan()
 {
     createInstance();
     createSurface();
-
+    pickPhysicalDevice();
+    
 }
