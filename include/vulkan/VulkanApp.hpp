@@ -47,12 +47,31 @@ private:
 
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
-    // Поля для swapchain
     VkSwapchainKHR swapchain;
     std::vector<VkImage> swapchainImages;
     std::vector<VkImageView> swapchainImageViews;
     VkFormat swapchainImageFormat;
     VkExtent2D swapchainExtent;
 
+    VkRenderPass renderPass;
+
+    void createImageViews();
+
+    void createRenderPass();
     void createSwapchain();
+    std::vector<VkFramebuffer> swapchainFramebuffers;
+    void createFramebuffers();
+
+    VkCommandPool commandPool;
+    std::vector<VkCommandBuffer> commandBuffers;
+
+    void createCommandPool();
+    void createCommandBuffers();
+
+    VkSemaphore imageAvailableSemaphore;
+    VkSemaphore renderFinishedSemaphore;
+    VkFence inFlightFence;
+
+    void createSyncObjects();
+    void drawFrame();
 };

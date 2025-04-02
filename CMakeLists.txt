@@ -3,16 +3,20 @@ project(Parametric3D)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# Находим Vulkan (это работает)
+# Находим Vulkan
 find_package(Vulkan REQUIRED)
 
-# Жестко подключаем GLFW (заголовки уже у тебя есть)
+# Указываем папку с заголовками (включая vulkan/VulkanApp.hpp)
+include_directories(include)
+
+# Добавляем GLFW (если не через find_package)
 include_directories(/usr/include/GLFW)
 link_libraries(glfw)
 
-# Основной исполняемый файл
+# Добавляем исходники
 add_executable(Parametric3D
     main.cpp
+    src/vulkan/VulkanApp.cpp   # ← вот это обязательно!
 )
 
 # Линкуем Vulkan и GLFW
