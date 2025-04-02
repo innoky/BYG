@@ -2,7 +2,21 @@
 
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
+#include <vector>
 #include <iostream>
+#include <optional>
+
+struct QueueFamilyIndices
+{
+    std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
+
+    bool isComplete() const
+    {
+        return graphicsFamily.has_value() && presentFamily.has_value();
+    }
+};
+
 
 class VulkanApp
 {
@@ -20,10 +34,14 @@ private:
     void pickPhysicalDevice();
     void createLogicalDevice();
 
+    bool isDeviceSuitable(VkPhysicalDevice device);
+
     GLFWwindow *window = nullptr;
     VkInstance instance;
     VkSurfaceKHR surface;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice device;
     VkQueue graphicsQueue;
+
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 };
