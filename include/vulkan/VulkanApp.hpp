@@ -46,4 +46,13 @@ private:
     VkQueue presentQueue;
 
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
+    // Поля для swapchain
+    VkSwapchainKHR swapchain;
+    std::vector<VkImage> swapchainImages;
+    std::vector<VkImageView> swapchainImageViews;
+    VkFormat swapchainImageFormat;
+    VkExtent2D swapchainExtent;
+
+    void createSwapchain();
 };
