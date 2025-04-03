@@ -1,13 +1,14 @@
 #include "vulkan/VulkanApp.hpp"
+#include "TUtils.hpp"
 
 void VulkanApp::initWindow()
 {
     glfwInit();
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API); 
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);   
-
-    window = glfwCreateWindow(800, 600, "Parametric 3D", nullptr, nullptr);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_DECORATED, false);
+    window = glfwCreateWindow(1920, 1080, "Parametric 3D", nullptr, nullptr);
 }
 
 void VulkanApp::createInstance()
@@ -273,32 +274,31 @@ void VulkanApp::createImageViews()
     }
 }
 
-
 void VulkanApp::createRenderPass()
 {
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = swapchainImageFormat;          // тот же формат, что и swapchain
-    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;        // без мультисэмплинга
-    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;   // очищаем в начале кадра
-    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // сохраняем, чтобы показать на экран
+    colorAttachment.format = swapchainImageFormat;        
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;       
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;  
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE; 
     colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 
-    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;     // начальное состояние изображения
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // нужно для показа
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;     
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; 
 
-    // Рендерим в colorAttachment (attachment 0)
+   
     VkAttachmentReference colorAttachmentRef{};
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-    // Один subpass (основной)
+ 
     VkSubpassDescription subpass{};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
 
-    // Зависимость между swapchain-изображением и subpass
+   
     VkSubpassDependency dependency{};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
@@ -362,7 +362,6 @@ void VulkanApp::createCommandPool()
     }
 }
 
-
 void VulkanApp::createCommandBuffers()
 {
     commandBuffers.resize(swapchainFramebuffers.size());
@@ -417,7 +416,7 @@ void VulkanApp::createSyncObjects()
 
     VkFenceCreateInfo fenceInfo{};
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT; // стартуем "разрешённым"
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphore) != VK_SUCCESS ||
         vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphore) != VK_SUCCESS ||
@@ -468,32 +467,71 @@ void VulkanApp::drawFrame()
     vkQueuePresentKHR(presentQueue, &presentInfo);
 }
 
-void VulkanApp::initVulkan()
+VkShaderModule VulkanApp::createShaderModule(const std::vector<char> &code)
 {
-    createInstance();
-    createSurface();
-    pickPhysicalDevice();
-    createLogicalDevice();
-    createSwapchain();
-    createImageViews();
-    createRenderPass();
-    createFramebuffers();
-    createCommandPool();
-    createCommandBuffers();
-    createSyncObjects();
-}
+    VkShaderModuleCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    createInfo.codeSize = code.size();
+    createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
 
-void VulkanApp::mainLoop()
-{
-    while (!glfwWindowShouldClose(window))
+    VkShaderModule shaderModule;
+    if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
     {
-        glfwPollEvents();
-        drawFrame();
+        throw std::runtime_error("Failed to create shader module!");
     }
+
+    return shaderModule;
 }
 
-void VulkanApp::run(){
-    initWindow();
-    initVulkan();
-    mainLoop();
+void VulkanApp::createGraphicsPipeline()
+{
+    auto vertShaderCode = readFile("include/vulkan/shaders/vert.spv");
+    auto fragShaderCode = readFile("include/vulkan/shaders/frag.spv");
+
+    VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+    VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
+
+    VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+    vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vertShaderStageInfo.module = vertShaderModule;
+    vertShaderStageInfo.pName = "main";
+
+    VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragShaderStageInfo.module = fragShaderModule;
+    fragShaderStageInfo.pName = "main";
+
+    VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 }
+void VulkanApp::initVulkan()
+    {
+        createInstance();
+        createSurface();
+        pickPhysicalDevice();
+        createLogicalDevice();
+        createSwapchain();
+        createImageViews();
+        createRenderPass();
+        createFramebuffers();
+        createCommandPool();
+        createCommandBuffers();
+        createSyncObjects();
+    }
+
+    void VulkanApp::mainLoop()
+    {
+        while (!glfwWindowShouldClose(window))
+        {
+            glfwPollEvents();
+            drawFrame();
+        }
+    }
+
+    void VulkanApp::run()
+    {
+        initWindow();
+        initVulkan();
+        mainLoop();
+    }

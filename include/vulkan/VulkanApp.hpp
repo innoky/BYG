@@ -56,6 +56,7 @@ private:
     VkRenderPass renderPass;
 
     void createImageViews();
+    
 
     void createRenderPass();
     void createSwapchain();
@@ -74,4 +75,11 @@ private:
 
     void createSyncObjects();
     void drawFrame();
+
+    VkShaderModule createShaderModule(const std::vector<char> &code);
+
+    VkPipelineLayout pipelineLayout;
+    VkPipeline graphicsPipeline;
+
+    void createGraphicsPipeline();
 };
