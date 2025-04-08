@@ -6,6 +6,7 @@
 #include <iostream>
 #include <optional>
 #include <set>
+#include "vulkan/Vertex.hpp"
 
 struct QueueFamilyIndices
 {
@@ -82,4 +83,18 @@ private:
     VkPipeline graphicsPipeline;
 
     void createGraphicsPipeline();
+
+    VkBuffer vertexBuffer;
+    VkDeviceMemory vertexBufferMemory;
+
+    void createVertexBuffer();
+
+    VkBuffer vertexBuffer;
+    VkDeviceMemory vertexBufferMemory;
+
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+    void createVertexBuffer();
+    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
+                      VkMemoryPropertyFlags properties,
+                      VkBuffer &buffer, VkDeviceMemory &bufferMemory);
 };

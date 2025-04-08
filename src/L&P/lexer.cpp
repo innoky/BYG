@@ -1,6 +1,6 @@
 #include <iostream>
-#include "lexer.hpp"
-#include "TUtils.hpp"
+#include "L&P/lexer.hpp"
+#include "TUtils/TUtils.hpp"
 
 
 Lexer::Lexer(const std::string& content)

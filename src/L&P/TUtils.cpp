@@ -1,5 +1,5 @@
 #include <iostream>
-#include "TUtils.hpp"
+#include "TUtils/TUtils.hpp"
 
 std::string tokenTypeToString(TokenType type)
 {

@@ -11,6 +11,8 @@ include_directories(include)
 
 # Добавляем GLFW (если не через find_package)
 include_directories(/usr/include/GLFW)
+include_directories(/usr/include/glm)
+
 link_libraries(glfw)
 
 # Добавляем исходники
